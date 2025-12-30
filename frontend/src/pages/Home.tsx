@@ -6,15 +6,16 @@ import { PinModal } from '@/components/PinModal';
 import { ProfileManagePanel } from '@/components/ProfileManagePanel';
 import type { Profile } from '@/data/profiles';
 import { LoadProfiles, DeleteProfile } from '../../wailsjs/go/main/App';
-import { Github, Search, Plus, Users, Info } from 'lucide-react';
+import { Github, Search, Plus, Users, Info, Shield } from 'lucide-react';
 
 interface HomeProps {
   onCreateProfile: () => void;
   onEditProfile: (profile: Profile) => void;
   onShowAbout: () => void;
+  onShowAdmin: () => void;
 }
 
-export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ onCreateProfile, onEditProfile, onShowAbout }, ref) => {
+export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ onCreateProfile, onEditProfile, onShowAbout, onShowAdmin }, ref) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
@@ -33,13 +34,14 @@ export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ on
   const loadProfiles = async () => {
     try {
       const loadedProfiles = await LoadProfiles();
-      setProfiles(loadedProfiles);
+      setProfiles(loadedProfiles || []);
     } catch (error) {
       console.error('Failed to load profiles:', error);
+      setProfiles([]);
     }
   };
 
-  const filteredProfiles = profiles.filter(profile =>
+  const filteredProfiles = (profiles || []).filter(profile =>
     profile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     profile.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
     profile.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -101,12 +103,21 @@ export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ on
               <div className="hidden md:flex items-center space-x-4 ml-8">
                 <div className="flex items-center space-x-2 text-github-secondary text-sm">
                   <Users className="h-4 w-4" />
-                  <span>{profiles.length} Students</span>
+                  <span>{(profiles || []).length} Students</span>
                 </div>
               </div>
             </div>
             
             <div className="flex items-center space-x-3">
+              <Button
+                onClick={onShowAdmin}
+                variant="ghost"
+                size="sm"
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Admin
+              </Button>
               <Button
                 onClick={onShowAbout}
                 variant="ghost"
@@ -146,7 +157,7 @@ export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ on
             </div>
             
             <div className="flex items-center space-x-2 text-sm text-github-secondary">
-              <span>Showing {filteredProfiles.length} of {profiles.length} profiles</span>
+              <span>Showing {filteredProfiles.length} of {(profiles || []).length} profiles</span>
             </div>
           </div>
         </div>

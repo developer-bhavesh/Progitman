@@ -3,10 +3,12 @@ import { Home } from '@/pages/Home';
 import { CreateProfile } from '@/pages/CreateProfile';
 import { ProfileManage } from '@/pages/ProfileManage';
 import { About } from '@/pages/About';
+import { Admin } from '@/pages/Admin';
+import { AdminAuth } from '@/pages/AdminAuth';
 import type { Profile } from '@/data/profiles';
 import { SaveProfile } from '../wailsjs/go/main/App';
 
-type AppState = 'home' | 'create' | 'edit' | 'about';
+type AppState = 'home' | 'create' | 'edit' | 'about' | 'admin-auth' | 'admin';
 
 function App() {
   const [currentState, setCurrentState] = useState<AppState>('home');
@@ -53,6 +55,14 @@ function App() {
     setCurrentState('about');
   };
 
+  const handleShowAdmin = () => {
+    setCurrentState('admin-auth');
+  };
+
+  const handleAdminAuthenticated = () => {
+    setCurrentState('admin');
+  };
+
   switch (currentState) {
     case 'create':
       return (
@@ -63,17 +73,45 @@ function App() {
       );
     
     case 'edit':
-      return editingProfile ? (
+      if (!editingProfile) {
+        setCurrentState('home');
+        return (
+          <Home
+            ref={homeRef}
+            onCreateProfile={handleCreateProfile}
+            onEditProfile={handleEditProfile}
+            onShowAbout={handleShowAbout}
+            onShowAdmin={handleShowAdmin}
+          />
+        );
+      }
+      return (
         <ProfileManage
           profile={editingProfile}
           onSave={handleSaveProfile}
           onCancel={handleCancel}
         />
-      ) : null;
+      );
     
     case 'about':
       return (
         <About onBack={handleCancel} />
+      );
+    
+    case 'admin-auth':
+      return (
+        <AdminAuth 
+          onBack={handleCancel}
+          onAuthenticated={handleAdminAuthenticated}
+        />
+      );
+    
+    case 'admin':
+      return (
+        <Admin 
+          onBack={handleCancel}
+          onRefreshProfiles={() => homeRef.current?.refreshProfiles()}
+        />
       );
     
     default:
@@ -83,6 +121,7 @@ function App() {
           onCreateProfile={handleCreateProfile}
           onEditProfile={handleEditProfile}
           onShowAbout={handleShowAbout}
+          onShowAdmin={handleShowAdmin}
         />
       );
   }
