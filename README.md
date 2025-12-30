@@ -4,8 +4,7 @@
 
 Progitman is a modern desktop application built with Wails, combining the power of Go. This project provides a seamless cross-platform experience with native performance and modern web technologies.
 
-**Developed by:** Solanki Bhavesh  
-**Contributor:** Shreyas Shuresh
+
 
 This application leverages the Wails framework to create native desktop applications using Go
 
@@ -22,3 +21,10 @@ To download Progitman, visit the [Releases](https://github.com/developer-bhavesh
 5. **Manage Profiles** - Click on any profile to view, edit, or manage credentials
 6. **Search** - Use the search bar to quickly find specific profiles
 
+##  System Requirements
+- **Windows:** Windows 10 or later
+- **macOS:** macOS 10.15 or later
+- **Linux:** Ubuntu 18.04 or equivalent
+
+**Developed by:** Solanki Bhavesh  
+**Contributor:** Shreyas Shuresh
