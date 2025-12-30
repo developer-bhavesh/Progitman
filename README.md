@@ -2,7 +2,12 @@
 
 ## About
 
-This is the official Wails React template.
+Progitman is a modern desktop application built with Wails, combining the power of Go backend with a React frontend. This project provides a seamless cross-platform experience with native performance and modern web technologies.
+
+**Developed by:** Solanki Bhavesh  
+**Contributor:** Shreyas Shuresh
+
+This application leverages the Wails framework to create native desktop applications using web technologies, offering the best of both worlds - the performance of Go and the flexibility of React.
 
 You can configure the project by editing `wails.json`. More information about the project settings can be found
 here: https://wails.io/docs/reference/project-config

@@ -6,14 +6,15 @@ import { PinModal } from '@/components/PinModal';
 import { ProfileManagePanel } from '@/components/ProfileManagePanel';
 import type { Profile } from '@/data/profiles';
 import { LoadProfiles, DeleteProfile } from '../../wailsjs/go/main/App';
-import { Github, Search, Plus, Users, BookOpen } from 'lucide-react';
+import { Github, Search, Plus, Users, Info } from 'lucide-react';
 
 interface HomeProps {
   onCreateProfile: () => void;
   onEditProfile: (profile: Profile) => void;
+  onShowAbout: () => void;
 }
 
-export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ onCreateProfile, onEditProfile }, ref) => {
+export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ onCreateProfile, onEditProfile, onShowAbout }, ref) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
@@ -99,24 +100,31 @@ export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ on
               
               <div className="hidden md:flex items-center space-x-4 ml-8">
                 <div className="flex items-center space-x-2 text-github-secondary text-sm">
-                  <BookOpen className="h-4 w-4" />
-                  <span>Apple Lab</span>
-                </div>
-                <div className="flex items-center space-x-2 text-github-secondary text-sm">
                   <Users className="h-4 w-4" />
                   <span>{profiles.length} Students</span>
                 </div>
               </div>
             </div>
             
-            <Button
-              onClick={onCreateProfile}
-              className="btn-primary text-sm font-medium"
-              size="sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New profile
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button
+                onClick={onShowAbout}
+                variant="ghost"
+                size="sm"
+                className="text-github-secondary hover:text-github-primary"
+              >
+                <Info className="h-4 w-4 mr-2" />
+                About
+              </Button>
+              <Button
+                onClick={onCreateProfile}
+                className="btn-primary text-sm font-medium"
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New profile
+              </Button>
+            </div>
           </div>
         </div>
       </header>

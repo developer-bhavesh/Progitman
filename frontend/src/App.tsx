@@ -2,10 +2,11 @@ import { useState, useRef } from 'react';
 import { Home } from '@/pages/Home';
 import { CreateProfile } from '@/pages/CreateProfile';
 import { ProfileManage } from '@/pages/ProfileManage';
+import { About } from '@/pages/About';
 import type { Profile } from '@/data/profiles';
 import { SaveProfile } from '../wailsjs/go/main/App';
 
-type AppState = 'home' | 'create' | 'edit';
+type AppState = 'home' | 'create' | 'edit' | 'about';
 
 function App() {
   const [currentState, setCurrentState] = useState<AppState>('home');
@@ -48,6 +49,10 @@ function App() {
     setEditingProfile(null);
   };
 
+  const handleShowAbout = () => {
+    setCurrentState('about');
+  };
+
   switch (currentState) {
     case 'create':
       return (
@@ -66,12 +71,18 @@ function App() {
         />
       ) : null;
     
+    case 'about':
+      return (
+        <About onBack={handleCancel} />
+      );
+    
     default:
       return (
         <Home
           ref={homeRef}
           onCreateProfile={handleCreateProfile}
           onEditProfile={handleEditProfile}
+          onShowAbout={handleShowAbout}
         />
       );
   }
