@@ -2,23 +2,23 @@
 
 ## About
 
-Progitman is a modern desktop application built with Wails, combining the power of Go backend with a React frontend. This project provides a seamless cross-platform experience with native performance and modern web technologies.
+Progitman is a modern desktop application built with Wails, combining the power of Go. This project provides a seamless cross-platform experience with native performance and modern web technologies.
 
 **Developed by:** Solanki Bhavesh  
 **Contributor:** Shreyas Shuresh
 
-This application leverages the Wails framework to create native desktop applications using web technologies, offering the best of both worlds - the performance of Go and the flexibility of React.
+This application leverages the Wails framework to create native desktop applications using Go
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+## Download
 
-## Live Development
+To download Progitman, visit the [Releases](https://github.com/developer-bhavesh/Progitman.git/releases/latest) page and download the latest version for your operating system.
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+## How to Use
 
-## Building
+1. **Download** the application from the releases page
+2. **Install** the application on your system
+3. **Launch** Progitman from your applications folder
+4. **Create Profile** - Click "New profile" to add a GitHub credentials
+5. **Manage Profiles** - Click on any profile to view, edit, or manage credentials
+6. **Search** - Use the search bar to quickly find specific profiles
 
-To build a redistributable, production mode package, use `wails build`.
