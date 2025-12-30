@@ -5,7 +5,7 @@ import { ProfileCard } from '@/components/ProfileCard';
 import { PinModal } from '@/components/PinModal';
 import { ProfileManagePanel } from '@/components/ProfileManagePanel';
 import type { Profile } from '@/data/profiles';
-import { LoadProfiles, DeleteProfile } from '../../wailsjs/go/main/App';
+import { dataService } from '@/services/dataService';
 import { Github, Search, Plus, Users, Info, Shield } from 'lucide-react';
 
 interface HomeProps {
@@ -33,7 +33,7 @@ export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ on
 
   const loadProfiles = async () => {
     try {
-      const loadedProfiles = await LoadProfiles();
+      const loadedProfiles = await dataService.loadProfiles();
       setProfiles(loadedProfiles || []);
     } catch (error) {
       console.error('Failed to load profiles:', error);
@@ -73,7 +73,7 @@ export const Home = forwardRef<{ refreshProfiles: () => void }, HomeProps>(({ on
 
   const handleDeleteProfile = async (profileId: string) => {
     try {
-      await DeleteProfile(profileId);
+      await dataService.deleteProfile(profileId);
       await loadProfiles(); // Reload profiles after deletion
       setIsManagePanelOpen(false);
       setSelectedProfile(null);

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield, Trash2, Users, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Shield, Trash2, Users, AlertTriangle, RefreshCw } from 'lucide-react';
 import type { Profile } from '@/data/profiles';
-import { LoadProfiles, DeleteProfile } from '../../wailsjs/go/main/App';
+import { dataService } from '@/services/dataService';
 
 interface AdminProps {
   onBack: () => void;
@@ -14,6 +14,7 @@ export const Admin = ({ onBack, onRefreshProfiles }: AdminProps) => {
   const [selectedProfiles, setSelectedProfiles] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     loadProfiles();
@@ -21,7 +22,7 @@ export const Admin = ({ onBack, onRefreshProfiles }: AdminProps) => {
 
   const loadProfiles = async () => {
     try {
-      const loadedProfiles = await LoadProfiles();
+      const loadedProfiles = await dataService.loadProfiles();
       setProfiles(loadedProfiles || []);
     } catch (error) {
       console.error('Failed to load profiles:', error);
@@ -54,7 +55,7 @@ export const Admin = ({ onBack, onRefreshProfiles }: AdminProps) => {
     setIsDeleting(true);
     try {
       for (const profileId of selectedProfiles) {
-        await DeleteProfile(profileId);
+        await dataService.deleteProfile(profileId);
       }
       setSelectedProfiles(new Set());
       await loadProfiles();
@@ -70,13 +71,26 @@ export const Admin = ({ onBack, onRefreshProfiles }: AdminProps) => {
   const handleDeleteSingle = async (profileId: string) => {
     setIsDeleting(true);
     try {
-      await DeleteProfile(profileId);
+      await dataService.deleteProfile(profileId);
       await loadProfiles();
       onRefreshProfiles();
     } catch (error) {
       console.error('Failed to delete profile:', error);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleForceSync = async () => {
+    setIsSyncing(true);
+    try {
+      await dataService.forceSync();
+      await loadProfiles();
+      onRefreshProfiles();
+    } catch (error) {
+      console.error('Failed to sync:', error);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -124,6 +138,17 @@ export const Admin = ({ onBack, onRefreshProfiles }: AdminProps) => {
             </div>
             
             <div className="flex items-center space-x-3">
+              <Button
+                onClick={handleForceSync}
+                variant="outline"
+                size="sm"
+                disabled={isSyncing}
+                className="text-blue-600 border-blue-300"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                {isSyncing ? 'Syncing...' : 'Sync'}
+              </Button>
+              
               {(profiles || []).length > 0 && (
                 <Button
                   onClick={handleSelectAll}

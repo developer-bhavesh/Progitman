@@ -6,7 +6,7 @@ import { About } from '@/pages/About';
 import { Admin } from '@/pages/Admin';
 import { AdminAuth } from '@/pages/AdminAuth';
 import type { Profile } from '@/data/profiles';
-import { SaveProfile } from '../wailsjs/go/main/App';
+import { dataService } from '@/services/dataService';
 
 type AppState = 'home' | 'create' | 'edit' | 'about' | 'admin-auth' | 'admin';
 
@@ -31,10 +31,10 @@ function App() {
     };
     
     try {
-      await SaveProfile(profile as any);
-      console.log('Profile saved to keychain successfully');
+      await dataService.saveProfile(profile as any);
+      console.log('Profile saved successfully');
     } catch (error) {
-      console.error('Failed to save profile to keychain:', error);
+      console.error('Failed to save profile:', error);
     }
     
     setCurrentState('home');

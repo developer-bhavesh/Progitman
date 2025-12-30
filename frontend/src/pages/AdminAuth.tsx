@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield, Eye, EyeOff, Lock } from 'lucide-react';
+import { firebaseService } from '@/services/firebase';
 
 interface AdminAuthProps {
   onBack: () => void;
@@ -8,75 +9,29 @@ interface AdminAuthProps {
 }
 
 export const AdminAuth = ({ onBack, onAuthenticated }: AdminAuthProps) => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSetup, setIsSetup] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    checkAdminSetup();
-  }, []);
-
-  const checkAdminSetup = () => {
-    const adminPassword = localStorage.getItem('admin_password');
-    setIsSetup(!!adminPassword);
-  };
-
-  // Simple hash function for password security
-  const hashPassword = async (password: string): Promise<string> => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password + 'progitman_salt_2024');
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const handleSetupPassword = async () => {
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    
-    const hashedPassword = await hashPassword(password);
-    localStorage.setItem('admin_password', hashedPassword);
-    setError('');
-    onAuthenticated();
-  };
-
   const handleLogin = async () => {
     setIsLoading(true);
-    const storedPassword = localStorage.getItem('admin_password');
+    setError('');
     
-    setTimeout(async () => {
-      if (storedPassword) {
-        const hashedInput = await hashPassword(password);
-        if (hashedInput === storedPassword) {
-          setError('');
-          onAuthenticated();
-        } else {
-          setError('Invalid password');
-        }
-      } else {
-        setError('Invalid password');
-      }
+    try {
+      await firebaseService.signInAdmin(email, password);
+      onAuthenticated();
+    } catch (error: any) {
+      setError('Invalid email or password');
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSetup) {
-      await handleLogin();
-    } else {
-      await handleSetupPassword();
-    }
+    await handleLogin();
   };
 
   return (
@@ -96,9 +51,7 @@ export const AdminAuth = ({ onBack, onAuthenticated }: AdminAuthProps) => {
             </Button>
             <div className="flex items-center space-x-3">
               <Shield className="h-5 w-5 text-red-500" />
-              <h1 className="text-xl font-semibold text-github-primary">
-                {isSetup ? 'Admin Login' : 'Admin Setup'}
-              </h1>
+              <h1 className="text-xl font-semibold text-github-primary">Admin Login</h1>
             </div>
             <div className="w-16" />
           </div>
@@ -112,21 +65,30 @@ export const AdminAuth = ({ onBack, onAuthenticated }: AdminAuthProps) => {
             <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
               <Lock className="h-8 w-8 text-red-500" />
             </div>
-            <h2 className="text-2xl font-bold text-github-primary mb-2">
-              {isSetup ? 'Enter Admin Password' : 'Setup Admin Password'}
-            </h2>
+            <h2 className="text-2xl font-bold text-github-primary mb-2">Admin Login</h2>
             <p className="text-github-secondary">
-              {isSetup 
-                ? 'Enter your admin password to access the admin panel'
-                : 'Create a secure password to protect admin access'
-              }
+              Sign in with your Firebase admin account
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-github-primary mb-2">
-                {isSetup ? 'Password' : 'Admin Password'}
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-github-muted rounded-md bg-github-canvas text-github-primary focus:outline-none focus:ring-2 focus:ring-github-accent focus:border-transparent"
+                placeholder="Enter admin email"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-github-primary mb-2">
+                Password
               </label>
               <div className="relative">
                 <input
@@ -134,7 +96,7 @@ export const AdminAuth = ({ onBack, onAuthenticated }: AdminAuthProps) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-github-muted rounded-md bg-github-canvas text-github-primary focus:outline-none focus:ring-2 focus:ring-github-accent focus:border-transparent"
-                  placeholder={isSetup ? 'Enter password' : 'Create password (min 6 characters)'}
+                  placeholder="Enter password"
                   required
                 />
                 <button
@@ -147,31 +109,6 @@ export const AdminAuth = ({ onBack, onAuthenticated }: AdminAuthProps) => {
               </div>
             </div>
 
-            {!isSetup && (
-              <div>
-                <label className="block text-sm font-medium text-github-primary mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-github-muted rounded-md bg-github-canvas text-github-primary focus:outline-none focus:ring-2 focus:ring-github-accent focus:border-transparent"
-                    placeholder="Confirm password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-github-secondary hover:text-github-primary"
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-
             {error && (
               <div className="text-red-500 text-sm text-center bg-red-50 border border-red-200 rounded-md p-3">
                 {error}
@@ -183,17 +120,15 @@ export const AdminAuth = ({ onBack, onAuthenticated }: AdminAuthProps) => {
               className="w-full btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? 'Verifying...' : (isSetup ? 'Login' : 'Setup Admin')}
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
-          {isSetup && (
-            <div className="mt-6 text-center">
-              <p className="text-xs text-github-secondary">
-                Forgot your password? Contact the system administrator.
-              </p>
-            </div>
-          )}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-github-secondary">
+              Admin users are managed in Firebase Authentication.
+            </p>
+          </div>
         </div>
       </main>
     </div>
